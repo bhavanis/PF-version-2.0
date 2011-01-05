@@ -96,7 +96,7 @@ void getUrl(string text,string &str1) {
 	KMP(pattern,str,str1);
 	
 }
-void parse_current(const string& infile,map <string,string> imp)
+void parse_current(const string& infile,map <string,string> &imp)
 {
 	ifstream instream(infile.c_str());
 	Value value;
@@ -136,6 +136,7 @@ bool err_is_zero()
 }
 
 bool face_matcher(string url_missed,string url_found){
+		cout << url_missed << " " << url_found;
 		//implementation needed
 		return true;
 }
@@ -144,17 +145,28 @@ void match_iden_missed(string identity,string missed) {
 	map <string,string> imp1,imp2;
 
 	parse_current(missed,imp1);
+	cout << "identify next\n";
 	parse_current(identity,imp2);
 	//implement a better algo if time permits
 	map <string, string> :: iterator it1;
 	map <string, string> :: iterator it2;
 	for(it1 = imp1.begin(); it1 != imp1.end(); it1++)
 	{
-		for(it2 = imp2.begin(); it2 != imp1.end(); it2++)
+		for(it2 = imp2.begin(); it2 != imp2.end(); it2++)
 		{
+			cout<<"facematcher!";
 			if(face_matcher((*it1).second,(*it2).second)) {
 				//if both are same then post it to the respective user
 				//oAuth etc 
+				string status = "perl TTYConsole.pl -status=\"@";//+"@"+(*it1).first+"contact "+(*it2).first+"for "+(*it1).second+"\"";
+				status += (*it1).first;
+				status += " contact ";
+				status += (*it2).first;
+				status += " for ";
+				status += (*it1).second;
+				status += "\"";
+				cout << status<<endl;
+				system(status.c_str());			
 			}
 		}
 	}	
@@ -171,14 +183,17 @@ bool fileisEmpty(string name) {
 }
 int main()
 {
+		cout<<"program started\n";
 	//system("curl -sL \"http://search.twitter.com/trends/current.json\" > current.json");
-	system("curl -sL \"http://search.twitter.com/search.json?q=%40blorehelp_test+%23identify\" > tweetstream_iden.json");
+	system("curl -sL \"http://search.twitter.com/search.json?q=%40blorehelp_test+%23found\" > tweetstream_iden.json");
+	//system("curl -sL \"http://search.twitter.com/search.json?q=%40blorehelp_test+%23missing\" > tweetstream_iden.json");
 	//parse_current("tweetstream.json",);
 	system("curl -sL \"http://search.twitter.com/search.json?q=%40blorehelp_test+%23missing\" > tweetstream_missed.json");
-	system("diff tweetstream_iden.json tweetstream_iden1.json > 1.txt");
-	system("diff tweetstream_missed.json tweetstream_missed1.json > 2.txt");
+	//system("diff tweetstream_iden.json tweetstream_iden1.json > 1.txt");
+	//system("diff tweetstream_missed.json tweetstream_missed1.json > 2.txt");
 
 	if (!fileisEmpty("1.txt") || !fileisEmpty("2.txt")) {
+		cout << "no change";
 		match_iden_missed("tweetstream_iden.json","tweetstream_missed.json");
 		
 		system("cp -f tweetstream_iden.json tweetstream_iden1.json");
